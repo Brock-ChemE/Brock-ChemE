@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluidized Beds — An Interactive Guide</title>
+<meta name="description" content="An interactive, AI-built educational web app explaining fluidized beds: the Ergun equation, minimum fluidization velocity, flow regimes, Geldart classification, bed expansion, and fluid catalytic cracking.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="styles.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>Fluidized Beds</h1>
+  <p class="subtitle">An interactive guide to gas&ndash;solid fluidization &mdash; from the Ergun equation to fluid catalytic cracking</p>
+</header>
+
+<nav class="tabs" aria-label="Site sections">
+  <button data-tab="tab-overview" class="active">Overview</button>
+  <button data-tab="tab-ergun">Fixed Bed &amp; Ergun</button>
+  <button data-tab="tab-umf">Fluidization &amp; u<sub>mf</sub></button>
+  <button data-tab="tab-regimes">Regimes &amp; Geldart</button>
+  <button data-tab="tab-expansion">Expansion &amp; Entrainment</button>
+  <button data-tab="tab-fcc">FCC Application</button>
+  <button data-tab="tab-video">Video &amp; Transcript</button>
+  <button data-tab="tab-about">About This AI Project</button>
+</nav>
+
+<main>
+
+<!-- ======================= 1. OVERVIEW ======================= -->
+<section class="tab-panel active" id="tab-overview">
+  <h2>Overview: What Is a Fluidized Bed?</h2>
+
+  <p>Take a vertical column, fill it partway with solid particles &mdash; sand, catalyst beads, grains of coal &mdash; and blow a gas upward through it from below. At low gas velocity, the gas simply seeps through the gaps between the particles and nothing moves. Turn the gas up, and something remarkable happens: at a certain velocity the particles lift off their neighbours, separate, and the whole bed starts to churn and slosh around <b>like a boiling liquid</b>. That is fluidization, and the churning mixture of gas and solids is a <b>fluidized bed</b>.</p>
+
+  <figure class="diagram">
+    <svg width="520" height="330" viewBox="0 0 520 330" role="img" aria-label="Fluidized bed column diagram">
+      <!-- column -->
+      <rect x="150" y="30" width="220" height="260" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="2"/>
+      <!-- distributor -->
+      <line x1="150" y1="252" x2="370" y2="252" stroke="#e00122" stroke-width="4"/>
+      <text x="380" y="258" fill="#a8a8ad" font-size="13">distributor plate</text>
+      <!-- gas arrows in -->
+      <line x1="260" y1="330" x2="260" y2="300" stroke="#4da3ff" stroke-width="3" marker-end="url(#arrBlue)"/>
+      <text x="272" y="326" fill="#4da3ff" font-size="14">gas in</text>
+      <!-- gas arrows up through bed -->
+      <line x1="200" y1="240" x2="200" y2="90" stroke="#4da3ff" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrBlue)"/>
+      <line x1="260" y1="240" x2="260" y2="70" stroke="#4da3ff" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrBlue)"/>
+      <line x1="320" y1="240" x2="320" y2="100" stroke="#4da3ff" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrBlue)"/>
+      <!-- particles -->
+      <g fill="#e00122">
+        <circle cx="185" cy="220" r="9"/><circle cx="215" cy="235" r="9"/><circle cx="245" cy="218" r="9"/>
+        <circle cx="275" cy="236" r="9"/><circle cx="305" cy="220" r="9"/><circle cx="340" cy="235" r="9"/>
+        <circle cx="200" cy="195" r="9"/><circle cx="235" cy="205" r="9"/><circle cx="290" cy="195" r="9"/>
+        <circle cx="325" cy="205" r="9"/><circle cx="260" cy="185" r="9"/><circle cx="215" cy="170" r="9"/>
+        <circle cx="300" cy="165" r="9"/><circle cx="250" cy="150" r="9"/>
+      </g>
+      <!-- bubbles -->
+      <circle cx="235" cy="120" r="16" fill="none" stroke="#f5b301" stroke-width="2"/>
+      <circle cx="300" cy="135" r="12" fill="none" stroke="#f5b301" stroke-width="2"/>
+      <text x="390" y="128" fill="#f5b301" font-size="13">bubbles</text>
+      <!-- gas out -->
+      <line x1="260" y1="30" x2="260" y2="8" stroke="#4da3ff" stroke-width="3" marker-end="url(#arrBlue)"/>
+      <text x="272" y="16" fill="#4da3ff" font-size="14">gas out</text>
+      <text x="30" y="150" fill="#a8a8ad" font-size="13">bed of solid</text>
+      <text x="30" y="168" fill="#a8a8ad" font-size="13">particles</text>
+      <text x="30" y="260" fill="#a8a8ad" font-size="13">plenum</text>
+      <defs>
+        <marker id="arrBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#4da3ff"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption><b>The setup.</b> Gas enters below a distributor plate, flows up through the bed of particles, and leaves at the top. Below the fluidization velocity the particles sit still (a fixed bed); above it, they are suspended and the bed behaves like a liquid &mdash; it flows, it bubbles, and its surface stays level.</figcaption>
+  </figure>
+
+  <h3>Why fluidized beds matter</h3>
+  <p>A fluidized bed mixes solids and gas almost perfectly. Every particle is surrounded by fresh gas, heat moves through the bed rapidly, and the temperature is nearly uniform everywhere. That combination is why chemical engineers use fluidized beds for:</p>
+  <ul>
+    <li><b>Catalytic reactors</b> &mdash; most famously fluid catalytic cracking (FCC), which turns heavy oil into gasoline and diesel (see the FCC tab).</li>
+    <li><b>Drying and coating</b> of grains, powders, and pharmaceuticals.</li>
+    <li><b>Combustion and gasification</b> of coal and biomass.</li>
+    <li><b>Heat treatment</b> and roasting of ores.</li>
+  </ul>
+
+  <div class="callout">
+    <p><b>The central question of this site:</b> at what gas velocity does a bed fluidize? Answering it means combining the pressure drop through a packed bed (the Ergun equation) with a force balance on the bed itself &mdash; and that combination gives the <b>minimum fluidization velocity, \(u_{mf}\)</b>, the single most important number in the subject.</p>
+  </div>
+
+  <h3>Roadmap</h3>
+  <ol>
+    <li><b>Fixed Bed &amp; Ergun</b> &mdash; pressure drop through a bed that is not moving yet.</li>
+    <li><b>Fluidization &amp; \(u_{mf}\)</b> &mdash; the force balance and the full derivation of the minimum fluidization velocity, with a live pressure-drop graph and bed animation.</li>
+    <li><b>Regimes &amp; Geldart</b> &mdash; what happens as velocity keeps rising, and which particles fluidize well.</li>
+    <li><b>Expansion &amp; Entrainment</b> &mdash; how the bed grows taller and when particles get carried away.</li>
+    <li><b>FCC Application</b> &mdash; the industrial payoff: a circulating fluidized bed that refines oil.</li>
+    <li><b>Video &amp; Transcript</b> &mdash; the presentation video and its verbatim transcript.</li>
+    <li><b>About This AI Project</b> &mdash; how this site was built, by which AI models, and the references.</li>
+  </ol>
+
+  <p><b>A note on the physics in this site.</b> Every calculation on this site &mdash; the Ergun pressure drop, \(u_{mf}\), terminal velocity, Geldart group, bed expansion &mdash; is computed live in your browser by a <b>WebAssembly module</b> compiled from AssemblyScript. The equations are shown next to the diagrams they belong to, with a note on what each one is used for. Where an equation is derived from first principles, the derivation is shown step by step; where a relation is an empirical correlation fitted to experiments, that is stated plainly.</p>
+</section>
+
+<!-- ======================= 2. FIXED BED & ERGUN ======================= -->
+<section class="tab-panel" id="tab-ergun">
+  <h2>Fixed Bed &amp; the Ergun Equation</h2>
+
+  <p>Before anything fluidizes, the bed is <b>fixed</b>: the particles rest on each other and on the distributor, and the gas flows through the voids between them. Pushing gas through those narrow, winding passages costs pressure &mdash; and the pressure drop is the first thing we need to predict.</p>
+
+  <h3>The two quantities that describe the bed</h3>
+  <div class="eqbox">
+    \[ \varepsilon = \frac{\text{volume of voids}}{\text{total volume of bed}} \qquad u = \frac{Q}{A} \]
+    <div class="eq-use"><b>What they are used for:</b> the <b>voidage</b> \(\varepsilon\) (typically 0.35&ndash;0.5 for a bed of spheres) says how much of the bed is empty space, and the <b>superficial velocity</b> \(u\) is the gas flow rate \(Q\) divided by the empty cross-sectional area \(A\) of the column &mdash; the velocity the gas <i>would</i> have if the column were empty. Every equation in this site is written in terms of \(u\) and \(\varepsilon\).</div>
+  </div>
+
+  <figure class="diagram">
+    <svg width="520" height="240" viewBox="0 0 520 240" role="img" aria-label="Fixed bed with gas flowing through voids">
+      <rect x="120" y="20" width="280" height="180" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="2"/>
+      <g fill="#e00122">
+        <circle cx="160" cy="60" r="14"/><circle cx="200" cy="50" r="14"/><circle cx="245" cy="62" r="14"/>
+        <circle cx="290" cy="52" r="14"/><circle cx="335" cy="62" r="14"/><circle cx="370" cy="52" r="14"/>
+        <circle cx="180" cy="95" r="14"/><circle cx="225" cy="90" r="14"/><circle cx="268" cy="98" r="14"/>
+        <circle cx="312" cy="90" r="14"/><circle cx="355" cy="98" r="14"/>
+        <circle cx="160" cy="132" r="14"/><circle cx="200" cy="128" r="14"/><circle cx="245" cy="135" r="14"/>
+        <circle cx="290" cy="128" r="14"/><circle cx="335" cy="135" r="14"/><circle cx="370" cy="128" r="14"/>
+        <circle cx="180" cy="168" r="14"/><circle cx="225" cy="165" r="14"/><circle cx="268" cy="172" r="14"/>
+        <circle cx="312" cy="165" r="14"/><circle cx="355" cy="172" r="14"/>
+      </g>
+      <path d="M140 195 Q 180 150 160 110 Q 200 90 240 120 Q 280 150 320 110 Q 360 80 380 60" fill="none" stroke="#4da3ff" stroke-width="2.5" stroke-dasharray="6 4"/>
+      <text x="410" y="70" fill="#4da3ff" font-size="13">gas winds through</text>
+      <text x="410" y="88" fill="#4da3ff" font-size="13">the voids</text>
+      <text x="20" y="120" fill="#a8a8ad" font-size="13">particles</text>
+      <text x="20" y="138" fill="#a8a8ad" font-size="13">at rest</text>
+      <line x1="260" y1="235" x2="260" y2="205" stroke="#4da3ff" stroke-width="3" marker-end="url(#arrB2)"/>
+      <text x="272" y="232" fill="#4da3ff" font-size="14">gas in, velocity u</text>
+      <defs>
+        <marker id="arrB2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#4da3ff"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption><b>A fixed bed.</b> The particles do not move. Gas threads through the void space, and friction in those narrow passages is what causes the pressure drop.</figcaption>
+  </figure>
+
+  <h3>The Ergun equation</h3>
+  <p>In 1952, Sabri Ergun combined two limiting behaviours into one equation for the pressure drop per unit length of bed, \(\Delta P / L\). It is the workhorse of this whole subject:</p>
+
+  <div class="eqbox">
+    \[ \boxed{\frac{\Delta P}{L} = \frac{150\,\mu\,(1-\varepsilon)^2\,u}{\varepsilon^3 d_p^2} + \frac{1.75\,(1-\varepsilon)\,\rho_g\,u^2}{\varepsilon^3 d_p}} \]
+    <div class="eq-use"><b>What it is used for:</b> predicting the pressure drop across a packed or fixed bed from the gas properties (\(\mu\), \(\rho_g\)), the particle size \(d_p\), the voidage \(\varepsilon\), and the superficial velocity \(u\). The first term is the <b>viscous term</b>; the second is the <b>inertial term</b>.</div>
+  </div>
+
+  <h4>Where the two terms come from</h4>
+  <p><b>Viscous term &mdash; \( \dfrac{150\,\mu\,(1-\varepsilon)^2\,u}{\varepsilon^3 d_p^2} \).</b> At low velocity the flow through the voids is laminar, like flow through a bundle of tiny tortuous tubes. The pressure drop then behaves like the Hagen&ndash;Poiseuille law: proportional to viscosity \(\mu\) and to velocity \(u\), and inversely proportional to the square of the particle size \(d_p^2\) (smaller particles &rarr; narrower passages &rarr; much larger drop). This is the <b>Kozeny&ndash;Carman</b> form. It dominates for small particles and slow gas.</p>
+  <p><b>Inertial term &mdash; \( \dfrac{1.75\,(1-\varepsilon)\,\rho_g\,u^2}{\varepsilon^3 d_p} \).</b> At higher velocity the gas has to accelerate, separate, and re-form its streamlines around every particle, and that form drag costs pressure proportional to \(\rho_g u^2\), like the drag on any bluff body. This is the <b>Burke&ndash;Plummer</b> form. It dominates for large particles and fast gas.</p>
+
+  <div class="callout warn">
+    <p><b>Derived or empirical?</b> The <i>forms</i> of the two terms come from theory (laminar channel flow and form drag), but the numbers <b>150 and 1.75 are not derived</b> &mdash; they were fitted by Ergun to experimental pressure-drop data. The Ergun equation is a semi-empirical correlation, and it is only as good as the data behind it. This distinction matters: on this site, every equation is labelled derived or empirical.</p>
+  </div>
+
+  <div class="widget">
+    <h3>Ergun term explorer</h3>
+    <p>Drag the sliders and watch how the pressure drop splits between the viscous term (laminar friction) and the inertial term (form drag). At low velocity and small particles the viscous term wins; at high velocity and large particles the inertial term takes over.</p>
+    <canvas id="ergunCanvas" width="900" height="380"></canvas>
+    <div class="controls">
+      <div class="control"><label>Gas velocity \(u\) = <b id="ergunUVal">0.10 m/s</b></label>
+        <input type="range" id="ergunU" min="0.01" max="1" step="0.01" value="0.1"></div>
+      <div class="control"><label>Particle diameter \(d_p\) = <b id="ergunDpVal">500 &mu;m</b></label>
+        <input type="range" id="ergunDp" min="50" max="2000" step="10" value="500"></div>
+      <div class="control"><label>Gas: <b id="ergunGasVal">air, 20 &deg;C</b></label>
+        <select id="ergunGas">
+          <option value="air20">Air, 20 &deg;C</option>
+          <option value="air500">Hot air, 500 &deg;C</option>
+          <option value="n2">Nitrogen, 20 &deg;C</option>
+          <option value="steam">Steam, 200 &deg;C</option>
+        </select></div>
+      <div class="control"><label>Voidage \(\varepsilon\) = <b id="ergunEpsVal">0.40</b></label>
+        <input type="range" id="ergunEps" min="0.35" max="0.5" step="0.01" value="0.4"></div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Viscous term &Delta;P/L</div><div class="v blue" id="ergunVisc">—</div></div>
+      <div class="stat"><div class="k">Inertial term &Delta;P/L</div><div class="v" id="ergunIner">—</div></div>
+      <div class="stat"><div class="k">Total &Delta;P/L</div><div class="v red" id="ergunTot">—</div></div>
+      <div class="stat"><div class="k">Viscous share</div><div class="v" id="ergunShare">—</div></div>
+    </div>
+  </div>
+
+  <p>The Ergun equation alone only describes a bed that stays put. The moment the pressure drop grows large enough to lift the particles, the bed stops being fixed &mdash; and that is the next tab.</p>
+</section>
+
+<!-- ======================= 3. FLUIDIZATION & u_mf ======================= -->
+<section class="tab-panel" id="tab-umf">
+  <h2>Fluidization &amp; the Minimum Fluidization Velocity</h2>
+
+  <p>As the gas velocity rises, the Ergun pressure drop rises with it &mdash; until the upward push of the gas on the particles exactly balances their weight. At that moment the particles are on the point of lifting, the bed is on the point of fluidizing, and the velocity is the <b>minimum fluidization velocity, \(u_{mf}\)</b>.</p>
+
+  <h3>Step 1 &mdash; the force balance at fluidization (derived)</h3>
+  <p>Consider the whole bed as a free body. The gas pushes up on it with the pressure force \(\Delta P \cdot A\); gravity pulls the particles down, opposed by the buoyancy of the gas they displace. At the point of fluidization the upward pressure force just balances the net (buoyant) weight of the bed:</p>
+
+  <div class="derivation">
+    <div class="step">\[ \text{pressure force upward} = \text{buoyant weight of the bed} \]
+      <div class="why">Force balance on the entire bed at the point of incipient fluidization.</div></div>
+    <div class="step">\[ \Delta P \cdot A = W_{\text{particles}} - F_{\text{buoyancy}} \]
+      <div class="why">Weight of the solid particles minus the buoyancy force on them.</div></div>
+    <div class="step">\[ \Delta P \cdot A = (1-\varepsilon)\,A\,H\,\rho_s\,g \;-\; (1-\varepsilon)\,A\,H\,\rho_g\,g \]
+      <div class="why">The solid volume in the bed is \((1-\varepsilon)AH\); multiply by density and \(g\) for each force.</div></div>
+    <div class="step">\[ \Delta P \cdot A = (1-\varepsilon)\,A\,H\,(\rho_s-\rho_g)\,g \]
+      <div class="why">Factor out the common terms.</div></div>
+    <div class="step">\[ \boxed{\Delta P = (1-\varepsilon)\,(\rho_s-\rho_g)\,g\,H} \]
+      <div class="why">Divide by the area \(A\). This is the pressure drop across the bed at fluidization.</div></div>
+  </div>
+
+  <div class="eqbox">
+    \[ \boxed{\Delta P_{mf} = (1-\varepsilon_{mf})(\rho_s-\rho_g)\,g\,H} \]
+    <div class="eq-use"><b>What it is used for:</b> the pressure drop the bed exerts (and the gas must supply) at the moment of fluidization. Note it does <b>not</b> depend on velocity &mdash; once the bed is fluidized, the pressure drop stays at this value even as the gas velocity rises, because the bed simply expands to let the extra gas through. \(\varepsilon_{mf}\) is the voidage at incipient fluidization.</div>
+  </div>
+
+  <h3>Step 2 &mdash; set the Ergun pressure drop equal to the bed weight (derived)</h3>
+  <p>The Ergun equation gives the pressure drop the gas <i>would</i> produce at velocity \(u\); the force balance gives the pressure drop the bed <i>requires</i> to lift. At \(u = u_{mf}\) they are equal:</p>
+
+  <div class="derivation">
+    <div class="step">\[ \Delta P_{\text{Ergun}} = \Delta P_{\text{bed weight}} \qquad \text{at } u = u_{mf} \]
+      <div class="why">The defining condition for incipient fluidization.</div></div>
+    <div class="step">\[ H\left[\frac{150\,\mu\,(1-\varepsilon)^2\,u_{mf}}{\varepsilon^3 d_p^2} + \frac{1.75\,(1-\varepsilon)\,\rho_g\,u_{mf}^2}{\varepsilon^3 d_p}\right] = (1-\varepsilon)(\rho_s-\rho_g)\,g\,H \]
+      <div class="why">Ergun \(\Delta P\) (pressure drop per length &times; bed height \(H\)) set equal to the force-balance result.</div></div>
+    <div class="step">\[ \frac{150\,\mu\,(1-\varepsilon)^2\,u_{mf}}{\varepsilon^3 d_p^2} + \frac{1.75\,(1-\varepsilon)\,\rho_g\,u_{mf}^2}{\varepsilon^3 d_p} = (1-\varepsilon)(\rho_s-\rho_g)\,g \]
+      <div class="why">Divide both sides by \(H\).</div></div>
+    <div class="step">\[ \underbrace{\frac{1.75\,(1-\varepsilon)\,\rho_g}{\varepsilon^3 d_p}}_{B}\,u_{mf}^2 + \underbrace{\frac{150\,\mu\,(1-\varepsilon)^2}{\varepsilon^3 d_p^2}}_{A}\,u_{mf} - \underbrace{(1-\varepsilon)(\rho_s-\rho_g)\,g}_{C} = 0 \]
+      <div class="why">Collect the coefficients of \(u_{mf}^2\), \(u_{mf}\), and the constant into \(A\), \(B\), \(C\).</div></div>
+    <div class="step">\[ u_{mf} = \frac{-A + \sqrt{A^2 + 4BC}}{2B} \]
+      <div class="why">Quadratic formula; the positive root is the physical one (the negative root would mean downward flow).</div></div>
+    <div class="step">\[ \boxed{u_{mf} = \frac{-A + \sqrt{A^2 + 4BC}}{2B}}, \quad \begin{cases} A = \dfrac{150\,\mu\,(1-\varepsilon)^2}{\varepsilon^3 d_p^2} \\[6pt] B = \dfrac{1.75\,(1-\varepsilon)\,\rho_g}{\varepsilon^3 d_p} \\[6pt] C = (1-\varepsilon)(\rho_s-\rho_g)\,g \end{cases} \]
+      <div class="why">The full solution for the minimum fluidization velocity. Every quantity in it is a measurable property.</div></div>
+  </div>
+
+  <h3>Step 3 &mdash; the small-particle closed form (derived)</h3>
+  <p>For small particles the flow is slow and the viscous term dominates, so the inertial term (\(B u_{mf}^2\)) can be dropped. The quadratic collapses to a single closed-form answer:</p>
+
+  <div class="derivation">
+    <div class="step">\[ A\,u_{mf} = C \qquad \text{(inertial term neglected)} \]
+      <div class="why">Valid when the particle Reynolds number is small (roughly \(Re_p &lt; 20\)).</div></div>
+    <div class="step">\[ u_{mf} = \frac{C}{A} = \frac{(1-\varepsilon)(\rho_s-\rho_g)\,g\;\varepsilon^3 d_p^2}{150\,\mu\,(1-\varepsilon)^2} \]
+      <div class="why">Substitute \(A\) and \(C\) and divide.</div></div>
+    <div class="step">\[ \boxed{u_{mf} = \frac{d_p^2\,(\rho_s-\rho_g)\,g\,\varepsilon_{mf}^3}{150\,\mu\,(1-\varepsilon_{mf})}} \qquad (Re_p &lt; 20) \]
+      <div class="why">Cancel one factor of \((1-\varepsilon)\). This is the form most often used for fine powders and catalyst particles.</div></div>
+  </div>
+
+  <h3>Step 4 &mdash; the Wen&ndash;Yu correlation (empirical cross-check)</h3>
+  <p>Wen and Yu (1966) fitted a large body of fluidization data into a compact correlation. It is not derived &mdash; it is a curve fit &mdash; but it is the standard quick check against the Ergun result:</p>
+
+  <div class="eqbox">
+    \[ \text{Ar} = \frac{d_p^3\,\rho_g\,(\rho_s-\rho_g)\,g}{\mu^2}, \qquad Re_{mf} = \sqrt{33.7^2 + 0.0408\,\text{Ar}} - 33.7, \qquad \boxed{u_{mf} = \frac{Re_{mf}\,\mu}{d_p\,\rho_g}} \]
+    <div class="eq-use"><b>What it is used for:</b> a fast, independent estimate of \(u_{mf}\) from the Archimedes number \(\text{Ar}\), which combines particle size, densities, and gas viscosity into one dimensionless group. If the Ergun quadratic and Wen&ndash;Yu agree within ~10&ndash;20%, the estimate is trustworthy.</div>
+  </div>
+
+  <div class="callout">
+    <p><b>Derived vs. empirical, in one place.</b> The force balance and the algebra that turns Ergun + force balance into \(u_{mf}\) are <b>derived</b>. The Ergun constants 150 and 1.75, and the Wen&ndash;Yu correlation, are <b>empirical</b> &mdash; fitted to experiments. A good engineer knows which parts of a calculation are exact and which are fitted.</p>
+  </div>
+
+  <div class="widget">
+    <h3>Pressure drop vs. gas velocity &mdash; the signature graph</h3>
+    <p>The Ergun curve rises with velocity until it hits the bed-weight pressure drop &mdash; that intersection is \(u_{mf}\). Above \(u_{mf}\) the pressure drop stays flat at the bed weight while the bed expands. Move the sliders and watch the fluidization point move.</p>
+    <canvas id="dpCanvas" width="900" height="420"></canvas>
+    <div class="controls">
+      <div class="control"><label>Particle diameter \(d_p\) = <b id="dpVal">500 &mu;m</b></label>
+        <input type="range" id="dpSlider" min="50" max="2000" step="10" value="500"></div>
+      <div class="control"><label>Particle density \(\rho_s\) = <b id="rhosVal">2600 kg/m&sup3;</b></label>
+        <input type="range" id="rhosSlider" min="1000" max="4000" step="50" value="2600"></div>
+      <div class="control"><label>Gas density \(\rho_g\) = <b id="rhogVal">1.20 kg/m&sup3;</b></label>
+        <input type="range" id="rhogSlider" min="0.2" max="2" step="0.05" value="1.2"></div>
+      <div class="control"><label>Gas viscosity \(\mu\) = <b id="muVal">1.81 &times; 10<sup>&minus;5</sup> Pa&middot;s</b></label>
+        <input type="range" id="muSlider" min="1" max="4" step="0.05" value="1.81"></div>
+      <div class="control"><label>Voidage \(\varepsilon\) = <b id="epsVal">0.40</b></label>
+        <input type="range" id="epsSlider" min="0.35" max="0.5" step="0.01" value="0.4"></div>
+      <div class="control"><label>Bed height \(H\) = <b id="hVal">0.50 m</b></label>
+        <input type="range" id="hSlider" min="0.1" max="1" step="0.05" value="0.5"></div>
+      <div class="control"><label>Gas temperature (air) = <b id="tempVal">20 &deg;C</b></label>
+        <input type="range" id="tempSlider" min="20" max="600" step="10" value="20"></div>
+    </div>
+    <div class="btn-row" id="gasButtons">
+      <span style="color:var(--muted); font-size:0.92rem; align-self:center;">What-if gas switch:</span>
+      <button class="chip active" data-gas="air20">Air, 20 &deg;C</button>
+      <button class="chip" data-gas="air500">Hot air, 500 &deg;C</button>
+      <button class="chip" data-gas="n2">Nitrogen, 20 &deg;C</button>
+      <button class="chip" data-gas="steam">Steam, 200 &deg;C</button>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">\(u_{mf}\) &mdash; Ergun</div><div class="v red" id="roUmfErgun">—</div></div>
+      <div class="stat"><div class="k">\(u_{mf}\) &mdash; Wen&ndash;Yu</div><div class="v" id="roUmfWY">—</div></div>
+      <div class="stat"><div class="k">\(\Delta P_{mf}\) (bed weight)</div><div class="v" id="roDPmf">—</div></div>
+      <div class="stat"><div class="k">Terminal velocity \(u_t\)</div><div class="v blue" id="roUt">—</div></div>
+    </div>
+  </div>
+
+  <div class="widget">
+    <h3>Bed animation</h3>
+    <p>Drag the gas velocity and watch the bed respond. Below \(u_{mf}\) the particles sit still; above it they jiggle, separate, and bubbles rise through the bed.</p>
+    <div class="two-col">
+      <canvas id="bedCanvas" width="360" height="420"></canvas>
+      <div>
+        <div class="controls" style="grid-template-columns: 1fr;">
+          <div class="control"><label>Gas velocity \(u\) = <b id="animUVal">0.00 m/s</b></label>
+            <input type="range" id="animU" min="0" max="4" step="0.02" value="0"></div>
+        </div>
+        <div class="readout">
+          <div class="stat"><div class="k">Regime</div><div class="v" id="animRegime">Fixed bed</div></div>
+          <div class="stat"><div class="k">\(u / u_{mf}\)</div><div class="v" id="animRatio">0.00</div></div>
+        </div>
+        <p style="color:var(--muted); font-size:0.92rem;">The animation uses the same \(u_{mf}\) and \(u_t\) as the graph above, from the same sliders. Try raising the velocity past \(u_{mf}\), then past \(u_t\) &mdash; and watch the particles get carried out of the top.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="widget">
+    <h3>Minimum fluidization velocity calculator</h3>
+    <p>Pick a particle and a gas from the preset lists (or type your own values) and compare the Ergun result with the Wen&ndash;Yu correlation side by side. Then enter an operating velocity to see which regime the bed is in.</p>
+    <div class="controls">
+      <div class="control"><label>Particle preset</label>
+        <select id="calcParticle">
+          <option value="sand">Sand — 2600 kg/m&sup3;</option>
+          <option value="glass">Glass beads — 2500 kg/m&sup3;</option>
+          <option value="fcc">FCC catalyst — 1500 kg/m&sup3;</option>
+          <option value="alumina">Alumina — 3900 kg/m&sup3;</option>
+          <option value="coal">Coal — 1400 kg/m&sup3;</option>
+          <option value="custom">Custom&hellip;</option>
+        </select></div>
+      <div class="control"><label>Gas preset (1 atm)</label>
+        <select id="calcGas">
+          <option value="air20">Air, 20 &deg;C (&rho; = 1.2, &mu; = 1.81&times;10<sup>&minus;5</sup>)</option>
+          <option value="air500">Hot air, 500 &deg;C (&rho; = 0.46, &mu; = 3.7&times;10<sup>&minus;5</sup>)</option>
+          <option value="n2">Nitrogen, 20 &deg;C (&rho; = 1.16, &mu; = 1.76&times;10<sup>&minus;5</sup>)</option>
+          <option value="steam">Steam, 200 &deg;C (&rho; = 0.59, &mu; = 1.6&times;10<sup>&minus;5</sup>)</option>
+        </select></div>
+      <div class="control"><label>Particle diameter \(d_p\) (&mu;m)</label>
+        <input type="number" id="calcDp" min="10" max="5000" step="10" value="500"></div>
+      <div class="control"><label>Particle density \(\rho_s\) (kg/m&sup3;)</label>
+        <input type="number" id="calcRhos" min="500" max="6000" step="10" value="2600"></div>
+      <div class="control"><label>Voidage \(\varepsilon\)</label>
+        <input type="number" id="calcEps" min="0.3" max="0.6" step="0.01" value="0.4"></div>
+      <div class="control"><label>Operating velocity \(u\) (m/s)</label>
+        <input type="number" id="calcU" min="0" max="20" step="0.05" value="0.5"></div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">\(u_{mf}\) &mdash; Ergun</div><div class="v red" id="calcUmfErgun">—</div></div>
+      <div class="stat"><div class="k">\(u_{mf}\) &mdash; Wen&ndash;Yu</div><div class="v" id="calcUmfWY">—</div></div>
+      <div class="stat"><div class="k">\(u_{mf}\) &mdash; small-particle form</div><div class="v" id="calcUmfSmall">—</div></div>
+      <div class="stat"><div class="k">Terminal velocity \(u_t\)</div><div class="v blue" id="calcUt">—</div></div>
+      <div class="stat"><div class="k">Regime at operating \(u\)</div><div class="v" id="calcRegime">—</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 4. REGIMES & GELDART ======================= -->
+<section class="tab-panel" id="tab-regimes">
+  <h2>Flow Regimes &amp; the Geldart Classification</h2>
+
+  <p>Fluidization is not one state &mdash; it is a progression. As the gas velocity rises from zero, the bed passes through a sequence of regimes, and the useful operating window for most processes sits between two velocities: the minimum fluidization velocity \(u_{mf}\) and the terminal velocity of a single particle \(u_t\).</p>
+
+  <figure class="diagram">
+    <svg width="860" height="250" viewBox="0 0 860 250" role="img" aria-label="Fluidization regime progression">
+      <g font-size="13" fill="#e9e9e9" text-anchor="middle">
+        <!-- fixed -->
+        <rect x="20" y="40" width="120" height="150" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="1.5"/>
+        <g fill="#e00122"><circle cx="50" cy="160" r="8"/><circle cx="75" cy="145" r="8"/><circle cx="100" cy="160" r="8"/><circle cx="62" cy="125" r="8"/><circle cx="90" cy="110" r="8"/><circle cx="115" cy="130" r="8"/><circle cx="50" cy="90" r="8"/><circle cx="80" cy="75" r="8"/><circle cx="110" cy="88" r="8"/></g>
+        <text x="80" y="215">Fixed bed</text><text x="80" y="232" fill="#a8a8ad">u &lt; u_mf</text>
+        <!-- bubbling -->
+        <rect x="180" y="40" width="120" height="150" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="1.5"/>
+        <g fill="#e00122"><circle cx="210" cy="165" r="8"/><circle cx="240" cy="175" r="8"/><circle cx="270" cy="160" r="8"/><circle cx="225" cy="140" r="8"/><circle cx="260" cy="135" r="8"/><circle cx="285" cy="170" r="8"/></g>
+        <circle cx="240" cy="95" r="16" fill="none" stroke="#f5b301" stroke-width="2"/>
+        <circle cx="275" cy="70" r="10" fill="none" stroke="#f5b301" stroke-width="2"/>
+        <text x="240" y="215">Bubbling</text><text x="240" y="232" fill="#a8a8ad">u &asymp; u_mf &ndash; 3u_mf</text>
+        <!-- slugging -->
+        <rect x="340" y="40" width="120" height="150" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="1.5"/>
+        <g fill="#e00122"><circle cx="370" cy="170" r="8"/><circle cx="400" cy="178" r="8"/><circle cx="430" cy="168" r="8"/><circle cx="385" cy="150" r="8"/><circle cx="415" cy="148" r="8"/></g>
+        <ellipse cx="400" cy="95" rx="34" ry="26" fill="none" stroke="#f5b301" stroke-width="2"/>
+        <text x="400" y="215">Slugging</text><text x="400" y="232" fill="#a8a8ad">deep / narrow beds</text>
+        <!-- turbulent -->
+        <rect x="500" y="40" width="120" height="150" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="1.5"/>
+        <g fill="#e00122"><circle cx="530" cy="160" r="7"/><circle cx="560" cy="120" r="7"/><circle cx="590" cy="165" r="7"/><circle cx="545" cy="85" r="7"/><circle cx="580" cy="70" r="7"/><circle cx="515" cy="110" r="7"/><circle cx="600" cy="120" r="7"/></g>
+        <circle cx="560" cy="145" r="9" fill="none" stroke="#f5b301" stroke-width="2"/>
+        <text x="560" y="215">Turbulent</text><text x="560" y="232" fill="#a8a8ad">bubbles break up</text>
+        <!-- fast / transport -->
+        <rect x="660" y="40" width="120" height="150" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="1.5"/>
+        <g fill="#e00122"><circle cx="690" cy="170" r="7"/><circle cx="720" cy="130" r="7"/><circle cx="750" cy="90" r="7"/><circle cx="705" cy="60" r="7"/><circle cx="745" cy="150" r="7"/></g>
+        <line x1="720" y1="185" x2="720" y2="45" stroke="#4da3ff" stroke-width="2" stroke-dasharray="5 4"/>
+        <text x="720" y="215">Fast / transport</text><text x="720" y="232" fill="#a8a8ad">u &gt; u_t</text>
+      </g>
+      <!-- arrows -->
+      <g stroke="#a8a8ad" stroke-width="2" fill="#a8a8ad">
+        <line x1="145" y1="115" x2="175" y2="115"/><polygon points="175,110 185,115 175,120"/>
+        <line x1="305" y1="115" x2="335" y2="115"/><polygon points="335,110 345,115 335,120"/>
+        <line x1="465" y1="115" x2="495" y2="115"/><polygon points="495,110 505,115 495,120"/>
+        <line x1="625" y1="115" x2="655" y2="115"/><polygon points="655,110 665,115 655,120"/>
+      </g>
+      <text x="430" y="20" fill="#a8a8ad" font-size="13" text-anchor="middle">gas velocity increases &rarr;</text>
+    </svg>
+    <figcaption><b>The regime progression.</b> Fixed bed &rarr; bubbling &rarr; slugging (in deep, narrow beds) &rarr; turbulent &rarr; fast fluidization / pneumatic transport. The velocity ranges are approximate and depend on the particles; the bubbling&ndash;turbulent transition is gradual, not a sharp line.</figcaption>
+  </figure>
+
+  <h3>Terminal velocity: the top of the operating window (derived)</h3>
+  <p>A single particle falling (or being carried) through gas reaches a terminal velocity \(u_t\) when the drag on it exactly balances its buoyant weight. The operating window for a bubbling bed is \(u_{mf} &lt; u &lt; u_t\): below \(u_{mf}\) nothing moves, above \(u_t\) the gas carries the particles out of the column.</p>
+
+  <div class="derivation">
+    <div class="step">\[ F_D = F_g - F_b \]
+      <div class="why">Force balance on one particle at its terminal velocity.</div></div>
+    <div class="step">\[ C_D\,\tfrac{1}{2}\rho_g u_t^2\,\tfrac{\pi d_p^2}{4} = \tfrac{\pi d_p^3}{6}\,(\rho_s-\rho_g)\,g \]
+      <div class="why">Drag (left) equals buoyant weight (right). \(\tfrac{\pi d_p^2}{4}\) is the projected area; \(\tfrac{\pi d_p^3}{6}\) is the particle volume.</div></div>
+    <div class="step">\[ u_t^2 = \frac{4\,d_p\,(\rho_s-\rho_g)\,g}{3\,\rho_g\,C_D} \]
+      <div class="why">Cancel \(\pi\) and \(d_p^2\) and solve for \(u_t^2\).</div></div>
+    <div class="step">\[ C_D = \frac{24}{Re}\left(1 + 0.15\,Re^{0.687}\right) \;\; (Re &lt; 1000), \qquad C_D = 0.44 \;\; (Re \ge 1000), \qquad Re = \frac{\rho_g u_t d_p}{\mu} \]
+      <div class="why">Schiller&ndash;Naumann drag correlation (empirical). Because \(C_D\) depends on \(u_t\), the equation is solved iteratively.</div></div>
+    <div class="step">\[ \text{Stokes regime } (Re &lt; 1): \qquad \boxed{u_t = \frac{d_p^2\,(\rho_s-\rho_g)\,g}{18\,\mu}} \]
+      <div class="why">For very small particles \(C_D = 24/Re\); substituting gives the closed-form Stokes settling velocity.</div></div>
+  </div>
+
+  <div class="eqbox">
+    \[ \boxed{u_{mf} &lt; u &lt; u_t} \]
+    <div class="eq-use"><b>What it is used for:</b> the operating window of a bubbling fluidized bed. Stay inside it and the bed fluidizes without losing particles; cross \(u_t\) and the bed empties into the exit (that is pneumatic transport, not fluidization).</div>
+  </div>
+
+  <h3>The Geldart classification</h3>
+  <p>Not all powders fluidize equally. In 1973, Derek Geldart showed that particles fall into four groups according to their size and density difference with the gas. The group tells you at a glance how a powder will behave:</p>
+
+  <table class="data">
+    <tr><th>Group</th><th>Typical size</th><th>Behaviour</th><th>Example</th></tr>
+    <tr><td><b>A &mdash; aeratable</b></td><td>30&ndash;100 &mu;m, light</td><td>Fluidizes smoothly; bed expands a lot before bubbling; bubbles split easily</td><td>FCC catalyst</td></tr>
+    <tr><td><b>B &mdash; sand-like</b></td><td>100&ndash;1000 &mu;m</td><td>Bubbles as soon as it fluidizes; the classic bubbling bed</td><td>Sand</td></tr>
+    <tr><td><b>C &mdash; cohesive</b></td><td>&lt; 30 &mu;m</td><td>Sticky interparticle forces dominate; channels and plugs instead of fluidizing</td><td>Fine flour, soot</td></tr>
+    <tr><td><b>D &mdash; spoutable</b></td><td>large and/or dense</td><td>Needs high velocity; tends to spout rather than bubble</td><td>Coarse coal, gravel</td></tr>
+  </table>
+
+  <div class="widget">
+    <h3>Geldart chart (interactive)</h3>
+    <p>Enter a particle diameter and a density difference (or pick a preset) and see which Geldart group it falls in. The boundaries are approximate &mdash; Geldart's chart is an empirical map drawn from experiments, not a derived result.</p>
+    <canvas id="geldartCanvas" width="900" height="460"></canvas>
+    <div class="controls">
+      <div class="control"><label>Particle diameter \(d_p\) = <b id="gelDpVal">75 &mu;m</b></label>
+        <input type="range" id="gelDp" min="10" max="3000" step="5" value="75"></div>
+      <div class="control"><label>Density difference \(\rho_s-\rho_g\) = <b id="gelDrhoVal">1500 kg/m&sup3;</b></label>
+        <input type="range" id="gelDrho" min="100" max="9000" step="50" value="1500"></div>
+    </div>
+    <div class="btn-row" id="gelPresets">
+      <button class="chip active" data-p="fcc">FCC catalyst (75 &mu;m)</button>
+      <button class="chip" data-p="sand">Sand (500 &mu;m)</button>
+      <button class="chip" data-p="fine">Fine powder (20 &mu;m)</button>
+      <button class="chip" data-p="coal">Coal (1000 &mu;m)</button>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Geldart group</div><div class="v red" id="gelGroup">—</div></div>
+      <div class="stat"><div class="k">What that means</div><div class="v" id="gelMeaning" style="font-size:1rem;">—</div></div>
+    </div>
+  </div>
+
+  <div class="widget">
+    <h3>Terminal velocity explorer</h3>
+    <p>Slide the particle diameter and watch the terminal velocity and its drag regime. The bar below shows the operating window \(u_{mf} &lt; u &lt; u_t\) for the current particles and gas.</p>
+    <canvas id="utCanvas" width="900" height="200"></canvas>
+    <div class="controls">
+      <div class="control"><label>Particle diameter \(d_p\) = <b id="utDpVal">500 &mu;m</b></label>
+        <input type="range" id="utDp" min="50" max="2000" step="10" value="500"></div>
+      <div class="control"><label>Particle preset</label>
+        <select id="utParticle">
+          <option value="sand">Sand — 2600 kg/m&sup3;</option>
+          <option value="glass">Glass beads — 2500 kg/m&sup3;</option>
+          <option value="fcc">FCC catalyst — 1500 kg/m&sup3;</option>
+          <option value="alumina">Alumina — 3900 kg/m&sup3;</option>
+          <option value="coal">Coal — 1400 kg/m&sup3;</option>
+        </select></div>
+      <div class="control"><label>Gas</label>
+        <select id="utGas">
+          <option value="air20">Air, 20 &deg;C</option>
+          <option value="air500">Hot air, 500 &deg;C</option>
+          <option value="n2">Nitrogen, 20 &deg;C</option>
+          <option value="steam">Steam, 200 &deg;C</option>
+        </select></div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Terminal velocity \(u_t\)</div><div class="v blue" id="utVal">—</div></div>
+      <div class="stat"><div class="k">\(Re_t\)</div><div class="v" id="utRe">—</div></div>
+      <div class="stat"><div class="k">Drag regime</div><div class="v" id="utRegime">—</div></div>
+      <div class="stat"><div class="k">\(u_{mf}\) (same particles)</div><div class="v red" id="utUmf">—</div></div>
+      <div class="stat"><div class="k">Operating window \(u_t / u_{mf}\)</div><div class="v" id="utWindow">—</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 5. EXPANSION & ENTRAINMENT ======================= -->
+<section class="tab-panel" id="tab-expansion">
+  <h2>Bed Expansion &amp; Entrainment</h2>
+
+  <p>Once a bed is fluidized, extra gas does not raise the pressure drop &mdash; it makes the bed taller. The particles spread apart, the voidage rises, and the bed expands until the extra gas can pass through. Push the velocity past the terminal velocity and the gas starts carrying particles out of the column: that is entrainment.</p>
+
+  <h3>The Richardson&ndash;Zaki relation (empirical)</h3>
+  <p>Richardson and Zaki (1954) found that the voidage of a fluidized bed follows a simple power law in the velocity ratio:</p>
+
+  <div class="eqbox">
+    \[ \boxed{\frac{u}{u_t} = \varepsilon^{\,n}} \]
+    <div class="eq-use"><b>What it is used for:</b> predicting the bed voidage \(\varepsilon\) at any operating velocity \(u\), from the terminal velocity \(u_t\) and the exponent \(n\). The exponent depends on the terminal Reynolds number \(Re_t = \rho_g u_t d_p / \mu\): \(n = 4.65\) for \(Re_t &lt; 0.2\); \(n = 4.4\,Re_t^{-0.03}\) for \(0.2 &lt; Re_t &lt; 1\); \(n = 4.4\,Re_t^{-0.1}\) for \(1 &lt; Re_t &lt; 500\); \(n = 2.4\) for \(Re_t &gt; 500\). The values of \(n\) are fitted to experiments &mdash; empirical.</div>
+  </div>
+
+  <h3>Bed height from a solids balance (derived)</h3>
+  <p>The amount of solid in the bed does not change as it expands &mdash; the same particles just occupy more space. Equating the solid volume before and after expansion gives the expanded height:</p>
+
+  <div class="derivation">
+    <div class="step">\[ (1-\varepsilon_{mf})\,A\,H_{mf} = (1-\varepsilon)\,A\,H \]
+      <div class="why">Solid volume is conserved: the bed at minimum fluidization (height \(H_{mf}\), voidage \(\varepsilon_{mf}\)) and the expanded bed (height \(H\), voidage \(\varepsilon\)) contain the same particles.</div></div>
+    <div class="step">\[ \boxed{H = H_{mf}\,\frac{1-\varepsilon_{mf}}{1-\varepsilon}} \qquad \text{with} \qquad \varepsilon = \left(\frac{u}{u_t}\right)^{1/n} \]
+      <div class="why">Cancel \(A\) and solve for \(H\). The voidage comes from Richardson&ndash;Zaki.</div></div>
+  </div>
+
+  <div class="widget">
+    <h3>Bed expansion explorer</h3>
+    <p>Raise the velocity from \(u_{mf}\) toward \(u_t\) and watch the bed grow. The bars show the bed height and voidage computed live from the Richardson&ndash;Zaki relation.</p>
+    <canvas id="expandCanvas" width="900" height="360"></canvas>
+    <div class="controls">
+      <div class="control"><label>Gas velocity \(u\) = <b id="expUVal">0.50 m/s</b></label>
+        <input type="range" id="expU" min="0.05" max="4" step="0.02" value="0.5"></div>
+      <div class="control"><label>Particle diameter \(d_p\) = <b id="expDpVal">500 &mu;m</b></label>
+        <input type="range" id="expDp" min="50" max="2000" step="10" value="500"></div>
+      <div class="control"><label>Particle preset</label>
+        <select id="expParticle">
+          <option value="sand">Sand — 2600 kg/m&sup3;</option>
+          <option value="glass">Glass beads — 2500 kg/m&sup3;</option>
+          <option value="fcc">FCC catalyst — 1500 kg/m&sup3;</option>
+          <option value="alumina">Alumina — 3900 kg/m&sup3;</option>
+          <option value="coal">Coal — 1400 kg/m&sup3;</option>
+        </select></div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">\(u_{mf}\)</div><div class="v red" id="expUmf">—</div></div>
+      <div class="stat"><div class="k">\(u_t\)</div><div class="v blue" id="expUt">—</div></div>
+      <div class="stat"><div class="k">Voidage \(\varepsilon\)</div><div class="v" id="expEps">—</div></div>
+      <div class="stat"><div class="k">Bed height \(H\) (from 0.50 m)</div><div class="v" id="expH">—</div></div>
+      <div class="stat"><div class="k">State</div><div class="v" id="expState">—</div></div>
+    </div>
+  </div>
+
+  <h3>Entrainment: when \(u &gt; u_t\)</h3>
+  <p>Above the terminal velocity, the drag on a particle exceeds its buoyant weight and the gas carries it upward out of the bed. In a bubbling bed this happens first to the finest particles, which are thrown into the freeboard above the bed surface. Industrial units deal with this in two ways:</p>
+  <ul>
+    <li><b>Freeboard and disengaging space</b> &mdash; extra height above the bed so entrained particles slow and fall back.</li>
+    <li><b>Cyclones</b> &mdash; the gas leaving the top is spun through a cyclone that throws the particles to the wall and returns them to the bed.</li>
+  </ul>
+  <p>Entrainment is a loss when it is unwanted &mdash; and the whole point of a <i>circulating</i> fluidized bed, like the FCC riser in the next tab, where the particles are deliberately carried along with the gas and then separated and returned.</p>
+</section>
+
+<!-- ======================= 6. FCC APPLICATION ======================= -->
+<section class="tab-panel" id="tab-fcc">
+  <h2>FCC: Fluid Catalytic Cracking</h2>
+
+  <p>Fluid catalytic cracking (FCC) is the largest industrial use of fluidization &mdash; and the reason a fluid mechanics course cares about it. An FCC unit is a <b>circulating fluidized bed</b>: tiny catalyst particles are suspended in hot hydrocarbon vapour, carried up a tall pipe called a riser, separated, regenerated, and circulated back, tens of tonnes per minute. Its job is to take heavy gas oil &mdash; big, low-value molecules from crude oil distillation &mdash; and crack them into lighter, more valuable fuels.</p>
+
+  <figure class="diagram">
+    <svg id="fccSvg" width="860" height="430" viewBox="0 0 860 430" role="img" aria-label="FCC unit diagram: riser, reactor stripper, regenerator, fractionator">
+      <!-- Riser -->
+      <g class="fcc-part" data-part="riser">
+        <rect x="330" y="120" width="60" height="260" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="2"/>
+        <text x="360" y="255" fill="#e9e9e9" font-size="14" text-anchor="middle" transform="rotate(-90 360 255)">RISER</text>
+      </g>
+      <!-- Reactor / stripper vessel -->
+      <g class="fcc-part" data-part="reactor">
+        <rect x="250" y="40" width="220" height="80" rx="10" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="2"/>
+        <text x="360" y="70" fill="#e9e9e9" font-size="14" text-anchor="middle">REACTOR / STRIPPER</text>
+        <text x="360" y="92" fill="#a8a8ad" font-size="12" text-anchor="middle">catalyst separated from vapours</text>
+      </g>
+      <!-- Regenerator vessel -->
+      <g class="fcc-part" data-part="regen">
+        <rect x="560" y="180" width="220" height="110" rx="10" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="2"/>
+        <text x="670" y="212" fill="#e9e9e9" font-size="14" text-anchor="middle">REGENERATOR</text>
+        <text x="670" y="234" fill="#a8a8ad" font-size="12" text-anchor="middle">coke burned off with air</text>
+        <text x="670" y="256" fill="#a8a8ad" font-size="12" text-anchor="middle">&asymp; 700 &deg;C</text>
+      </g>
+      <!-- Fractionator -->
+      <g class="fcc-part" data-part="frac">
+        <rect x="60" y="40" width="150" height="200" rx="10" fill="#1b1b1d" stroke="#e9e9e9" stroke-width="2"/>
+        <text x="135" y="70" fill="#e9e9e9" font-size="14" text-anchor="middle">FRACTIONATOR</text>
+        <text x="135" y="92" fill="#a8a8ad" font-size="12" text-anchor="middle">separates</text>
+        <text x="135" y="108" fill="#a8a8ad" font-size="12" text-anchor="middle">products</text>
+      </g>
+      <!-- Catalyst return line -->
+      <g class="fcc-part" data-part="catalyst">
+        <path d="M 640 290 L 640 350 L 360 350" fill="none" stroke="#f5b301" stroke-width="3" stroke-dasharray="7 5"/>
+        <text x="500" y="342" fill="#f5b301" font-size="12" text-anchor="middle">regenerated catalyst</text>
+      </g>
+      <!-- Spent catalyst line -->
+      <g class="fcc-part" data-part="catalyst">
+        <path d="M 470 110 L 560 180" fill="none" stroke="#f5b301" stroke-width="3" stroke-dasharray="7 5"/>
+        <text x="470" y="150" fill="#f5b301" font-size="12">spent catalyst</text>
+      </g>
+      <!-- Feed -->
+      <g class="fcc-part" data-part="feed">
+        <path d="M 330 400 L 330 380" fill="none" stroke="#4da3ff" stroke-width="3"/>
+        <text x="290" y="410" fill="#4da3ff" font-size="13">heavy gas oil feed + steam</text>
+      </g>
+      <!-- Vapour to fractionator -->
+      <g class="fcc-part" data-part="frac">
+        <path d="M 250 80 L 210 80 L 210 140 L 210 140" fill="none" stroke="#4da3ff" stroke-width="3"/>
+        <text x="180" y="60" fill="#4da3ff" font-size="12" text-anchor="middle">cracked vapours</text>
+      </g>
+      <!-- Air in -->
+      <g class="fcc-part" data-part="regen">
+        <path d="M 670 300 L 670 290" fill="none" stroke="#4da3ff" stroke-width="3"/>
+        <text x="700" y="310" fill="#4da3ff" font-size="13">air in</text>
+      </g>
+      <!-- Flue gas -->
+      <g class="fcc-part" data-part="regen">
+        <path d="M 670 180 L 670 160" fill="none" stroke="#a8a8ad" stroke-width="3"/>
+        <text x="700" y="165" fill="#a8a8ad" font-size="13">flue gas out</text>
+      </g>
+    </svg>
+    <figcaption><b>Click a part of the diagram</b> to read what happens there. The loop is: feed + hot regenerated catalyst meet at the bottom of the riser &rarr; cracking happens in seconds as they travel up together &rarr; catalyst and vapours separate in the reactor &rarr; vapours go to the fractionator, spent catalyst goes to the regenerator &rarr; coke is burned off &rarr; clean catalyst returns to the riser.</figcaption>
+  </figure>
+
+  <div class="callout" id="fccInfo">
+    <p><b>Click a part of the diagram above</b> to learn what happens there.</p>
+  </div>
+
+  <h3>Why FCC works: the fluidization connection</h3>
+  <p>FCC catalyst is a fine powder of zeolite crystals on an alumina-silica support, typically around 75 &mu;m in diameter &mdash; squarely in <b>Geldart Group A</b>, the group that fluidizes most smoothly and expands the most before bubbling. That is no accident: a Group A powder gives the intimate gas&ndash;solid contact and rapid circulation the process needs, with contact times of just a few seconds in the riser. The riser itself is a <b>transport (fast fluidization) regime</b> device &mdash; the gas velocity is above the terminal velocity of the catalyst, so the particles are deliberately carried along with the vapour and then separated in cyclones at the top.</p>
+
+  <h3>What comes out: the product slate</h3>
+  <p>The cracked vapours are separated in the fractionator into a slate of products. The economics of the unit are driven by the light, high-value end:</p>
+  <table class="data">
+    <tr><th>Product</th><th>What it is</th><th>Typical share*</th></tr>
+    <tr><td><b>Gasoline</b></td><td>High-octane motor fuel &mdash; the main product and the reason the unit exists</td><td>&asymp; 45&ndash;55%</td></tr>
+    <tr><td><b>LPG</b></td><td>Propane and butanes, including feed for alkylation and petrochemicals</td><td>&asymp; 15&ndash;25%</td></tr>
+    <tr><td><b>Light cycle oil (LCO)</b></td><td>Diesel-range material, blended into the diesel pool</td><td>&asymp; 15&ndash;20%</td></tr>
+    <tr><td><b>Heavy cycle oil (HCO)</b></td><td>Heavier material, often recycled to the riser for another pass</td><td>&asymp; 5&ndash;10%</td></tr>
+    <tr><td><b>Coke</b></td><td>Carbon laid down on the catalyst; burned off in the regenerator to supply the heat of cracking</td><td>&asymp; 4&ndash;6%</td></tr>
+  </table>
+  <p style="color:var(--muted); font-size:0.9rem;">*Shares vary with feed, catalyst, and operating severity; these are representative values.</p>
+
+  <div class="callout note">
+    <p><b>Gasoline vs. diesel.</b> FCC is tuned to maximise gasoline; the diesel-range cut (light cycle oil) is a secondary product. That is why the two fuels come up together in any discussion of FCC: the unit's job is to shift heavy oil toward the light transport fuels, and the gasoline/diesel split is the economic question a refinery answers every day.</p>
+  </div>
+
+  <h3>How much of this project is FCC?</h3>
+  <p>Deliberately about a fifth of it. The core of this site is the fluid mechanics of fluidization &mdash; the Ergun equation, \(u_{mf}\), the regimes, the Geldart groups, and bed expansion. FCC is the industrial payoff: it shows those ideas operating at full scale, and it is the reason fluidization is a core chemical engineering topic rather than a laboratory curiosity.</p>
+</section>
+
+<!-- ======================= 7. VIDEO & TRANSCRIPT ======================= -->
+<section class="tab-panel" id="tab-video">
+  <h2>Video &amp; Transcript</h2>
+
+  <div class="placeholder">
+    <h3 style="margin-top:0;">Presentation video &mdash; coming soon</h3>
+    <p>The ~10-minute presentation video for this project will be embedded and linked here once it has been recorded and uploaded to YouTube. The video will present the project: an overview of fluidized beds, the derivation of the minimum fluidization velocity, a demo of this web app, the AI process used to build it, and what the group learned.</p>
+    <p>The video's practice transcript and the detailed AI critique of that practice recording will be pasted into the video's YouTube comments, as required by the submission.</p>
+  </div>
+
+  <div class="placeholder">
+    <h3 style="margin-top:0;">Verbatim YouTube auto-generated transcript</h3>
+    <p>This section will hold the verbatim auto-generated transcript of the presentation video, exactly as produced by YouTube, once the final video is uploaded and its captions are available. No transcript text has been invented here &mdash; this section is intentionally empty until the real transcript exists.</p>
+  </div>
+</section>
+
+<!-- ======================= 8. ABOUT THIS AI PROJECT ======================= -->
+<section class="tab-panel" id="tab-about">
+  <h2>About This AI Project</h2>
+
+  <p>This website is an <b>AI project exploring AI capabilities</b>: it was designed and built with the help of AI models, and one of the goals of the course project is to study that process itself &mdash; what the models did well, where they needed guidance, and how the results compare across models.</p>
+
+  <h3>How version 1 was built</h3>
+  <ul>
+    <li><b>AI model:</b> Muse (Meta), acting as the assistant &ldquo;Perry&rdquo; in a supervised build session.</li>
+    <li><b>Physics engine:</b> written in AssemblyScript and compiled to WebAssembly (<code>build/release.wasm</code>). Every number on this site &mdash; the Ergun pressure drop, \(u_{mf}\), terminal velocity, Geldart group, and bed expansion &mdash; is computed by that module in the browser, not hard-coded.</li>
+    <li><b>User interface:</b> plain HTML, CSS, and JavaScript; equations rendered with KaTeX; graphs and diagrams drawn on canvas and SVG.</li>
+    <li><b>Hosting:</b> GitHub Pages, from the <code>Brock-ChemE</code> repository (see the README in the repository for the publish steps).</li>
+    <li><b>Human guidance:</b> the group chose the topic, the dark academic style with University of Cincinnati colours, the eight-tab structure, which sections to include, that derivations should show every step, that no static worked numerical example should be included, and which interactive widgets to build. The AI proposed the plan and built the site; the group directed the decisions.</li>
+  </ul>
+
+  <h3>Comparing AI models (course requirement)</h3>
+  <p>The submission requires the plan to be implemented using at least two different AI models and the outcomes compared, with the decisions on what to accept or reject from a cross-model critique justified. Version 1 of this site was built by one model (Muse). A <b>second model (to be decided)</b> will build and/or critique a version 2, and the comparison &mdash; what each model produced, what was accepted, what was rejected, and why &mdash; will be documented here once that step is complete.</p>
+
+  <h3>Prompts &amp; iteration log</h3>
+  <div class="placeholder">
+    <p><b>Iteration log &mdash; to be completed as the project proceeds.</b> This section will record the prompts used, the models involved, the critique each model received, and the accept/reject decisions with reasons. It is intentionally a stub for now: the log is only honest if it is written as the work happens.</p>
+  </div>
+
+  <h3>What I learned / what I want to learn more of</h3>
+  <div class="placeholder">
+    <p><b>DRAFT &mdash; for the group to personalize.</b> Working on this project showed how a single force balance and one empirical correlation (the Ergun equation) combine into a practical design number, the minimum fluidization velocity, that decides whether an entire industrial reactor works. The most surprising part was how much of fluidization engineering is empirical &mdash; the Ergun constants, the Wen&ndash;Yu correlation, and the Geldart groups are all fitted to experiments rather than derived. In future work, I want to learn more about how bubbling-bed models (such as the two-phase theory of Davidson) predict gas bypassing and conversion, and how circulating fluidized beds are scaled up from laboratory to refinery size.</p>
+  </div>
+
+  <h3>References</h3>
+  <ol>
+    <li>Kunii, D. &amp; Levenspiel, O., <i>Fluidization Engineering</i>, 2nd ed., Butterworth-Heinemann, 1991.</li>
+    <li>Ergun, S., &ldquo;Fluid flow through packed columns,&rdquo; <i>Chemical Engineering Progress</i> 48(2), 89&ndash;94, 1952.</li>
+    <li>Geldart, D., &ldquo;Types of gas fluidization,&rdquo; <i>Powder Technology</i> 7(5), 285&ndash;292, 1973.</li>
+    <li>Wen, C. Y. &amp; Yu, Y. H., &ldquo;A generalized method for predicting the minimum fluidization velocity,&rdquo; <i>AIChE Journal</i> 12(3), 610&ndash;612, 1966.</li>
+    <li>Richardson, J. F. &amp; Zaki, W. N., &ldquo;Sedimentation and fluidisation: Part I,&rdquo; <i>Transactions of the Institution of Chemical Engineers</i> 32, 35&ndash;53, 1954.</li>
+    <li>Davidson, J. F. &amp; Harrison, D., <i>Fluidised Particles</i>, Cambridge University Press, 1963.</li>
+  </ol>
+
+  <h3>Attribution &amp; contributions</h3>
+  <div class="placeholder">
+    <p><b>To be completed.</b> Group of 3; roles not yet assigned. Each member's contribution will be listed here, and each member submits the project separately.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fluidized Beds &mdash; an interactive guide built for a junior-level fluid mechanics course, University of Cincinnati, Chemical Engineering. Physics computed in WebAssembly.
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
